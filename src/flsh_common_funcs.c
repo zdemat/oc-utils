@@ -39,6 +39,7 @@
   extern void WORKAROUND_RELEASE_DQ(unsigned int);
 #endif
 
+#define FL_ADD_LEN   3   // flash_op address max num bytes
 
 
 // --------------------------------------------------------------------------------------------------------
@@ -1647,7 +1648,7 @@ void fw_4KB_Subsector_Erase(u32 devsel, u32 addr)   // 3 byte address
   printf("fw_4KB_Subsector_Erase: Skip ERASE cmd when running sim, put back in when running on real hardware (takes too long to run in sim).\n");
   // However from comments from the FLASH model, it looks like the FLASH recognizes and begins to execute the ERASE command properly.
 #else
-  flash_op(devsel, 0x20, addr, 4        , 0        , 0          , wary   , rary   , FO_DIR_WR, "4KB SUBSECTOR ERASE");
+  flash_op(devsel, 0x20, addr, FL_ADD_LEN, 0        , 0          , wary   , rary   , FO_DIR_WR, "4KB SUBSECTOR ERASE");
 #endif
 
   return;
@@ -1667,7 +1668,7 @@ void fw_64KB_Sector_Erase(u32 devsel, u32 addr)   // 3 byte address
    // However from comments from the FLASH model, it looks like the FLASH recognizes and begins to execute the ERASE command properly.             
 
 #else
-  flash_op(devsel, 0xD8, addr, 4        , 0        , 0          , wary   , rary   , FO_DIR_WR, "4KB SUBSECTOR ERASE"); 
+  flash_op(devsel, 0xD8, addr, FL_ADD_LEN, 0        , 0          , wary   , rary   , FO_DIR_WR, "4KB SUBSECTOR ERASE"); 
 #endif
 
   return;
@@ -1688,7 +1689,7 @@ void fr_Read(u32 devsel, u32 addr, int num_bytes, byte *rary)   // 3 byte addres
 
   if (TRC_FLASH_CMD == TRC_ON) printf("fr_Read: devsel %s, addr %4X, num_bytes %d\n", flash_devsel_as_str(devsel), addr, num_bytes); 
   //       devsel  cmd   addr  num_addr , num_dummy, num_bytes, wdata[], rdata[], dir      , comment
-  flash_op(devsel, 0x03, addr, 4        , 0        , num_bytes, wary   , rary   , FO_DIR_RD, "READ");
+  flash_op(devsel, 0x03, addr, FL_ADD_LEN, 0        , num_bytes, wary   , rary   , FO_DIR_RD, "READ");
 
   // Free malloc'd memory
   free(wary);
@@ -1712,8 +1713,8 @@ void fw_Page_Program(u32 devsel, u32 addr, int num_bytes, byte *wary)   // 3 byt
   }
 
   if (TRC_FLASH_CMD == TRC_ON) printf("fr_Page_Program: devsel %s, addr %4X, num_bytes %d\n", flash_devsel_as_str(devsel), addr, num_bytes); 
-  //       devsel  cmd   addr  num_addr, num_dummy, num_bytes, wdata[], rdata[], dir      , comment
-  flash_op(devsel, 0x02, addr, 4       , 0        , num_bytes, wary   , rary   , FO_DIR_WR, "PAGE PROGRAM");
+  //       devsel  cmd   addr    num_addr, num_dummy, num_bytes, wdata[], rdata[], dir      , comment
+  flash_op(devsel, 0x02, addr, FL_ADD_LEN, 0        , num_bytes, wary   , rary   , FO_DIR_WR, "PAGE PROGRAM");
 
   //printf("Deallocating array\n");
   // Free malloc'd memory
